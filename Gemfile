@@ -34,7 +34,7 @@ gem "image_processing", "~> 1.2"
 # gem "rack-cors"
 
 # --- scribed additions ---
-gem "sidekiq", "~> 7.3"
+gem "sidekiq", "~> 8.1"
 gem "redis", "~> 5.3"
 gem "ruby-openai", "~> 7.3"
 gem "whispercpp", "~> 1.3"
