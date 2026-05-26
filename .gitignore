@@ -6,3 +6,11 @@ tmp/storage/*
 !tmp/storage/.keep
 spec/fixtures/audio/output/
 *.wav.tmp
+
+# Rails defaults (bootsnap cache, logs, etc.)
+/log/*
+!/log/.keep
+/tmp/*
+!/tmp/.keep
+!/tmp/storage
+!/tmp/storage/.keep
