@@ -45,6 +45,47 @@ scribed ships with four providers out of the box. Configure the default in `conf
 
 Adding a provider: subclass `Providers::Base`, implement `#transcribe(audio_path, **opts)` returning a `Providers::Result`, register it in `config/transcription.yml`.
 
+## API
+
+All requests require `Authorization: Bearer <SCRIBED_API_KEY>`. Errors come back as `{"error":{"code","message"}}`.
+
+### Submit a transcription
+
+```bash
+curl -i -X POST http://localhost:3000/v1/transcriptions \
+  -H "Authorization: Bearer change-me-dev-key" \
+  -F "audio=@sample.wav" \
+  -F "provider=openai_compatible" \
+  -F "language=en"
+# 202 Accepted
+# Location: /v1/transcriptions/<uuid>
+# { "id": "...", "status": "pending", "created_at": "..." }
+```
+
+Or by URL:
+
+```bash
+curl -i -X POST http://localhost:3000/v1/transcriptions \
+  -H "Authorization: Bearer change-me-dev-key" \
+  -H "Content-Type: application/json" \
+  -d '{"audio_url":"https://example.com/sample.mp3","callback_url":"https://you/hook"}'
+```
+
+### Fetch a transcription
+
+```bash
+curl -H "Authorization: Bearer change-me-dev-key" \
+  http://localhost:3000/v1/transcriptions/<uuid>
+```
+
+### Delete
+
+```bash
+curl -X DELETE -H "Authorization: Bearer change-me-dev-key" \
+  http://localhost:3000/v1/transcriptions/<uuid>
+# 204 No Content
+```
+
 ## Roadmap
 
 - **v0.1** — synchronous + async transcription, OpenAI-compatible provider, API-key auth, webhooks.

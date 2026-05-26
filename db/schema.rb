@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_26_174531) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_26_185851) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -46,19 +46,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_174531) do
   create_table "transcriptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.integer "audio_duration_seconds"
     t.string "audio_filename"
+    t.string "audio_url"
+    t.string "callback_secret"
     t.datetime "created_at", null: false
+    t.jsonb "diarization", default: [], null: false
+    t.boolean "diarize", default: false, null: false
     t.text "error_message"
+    t.string "external_job_id"
     t.string "language"
+    t.string "model"
     t.integer "processing_completed_at"
     t.integer "processing_started_at"
+    t.text "prompt"
     t.string "provider", default: "openai_compatible", null: false
     t.jsonb "provider_metadata", default: {}, null: false
+    t.jsonb "segments", default: [], null: false
     t.string "status", default: "pending", null: false
+    t.string "submitted_by"
+    t.float "temperature"
     t.text "transcript"
     t.datetime "updated_at", null: false
     t.integer "webhook_attempts", default: 0, null: false
     t.string "webhook_url"
     t.index ["created_at"], name: "index_transcriptions_on_created_at"
+    t.index ["external_job_id"], name: "index_transcriptions_on_external_job_id"
     t.index ["status"], name: "index_transcriptions_on_status"
   end
 

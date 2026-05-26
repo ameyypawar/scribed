@@ -14,3 +14,4 @@ spec/fixtures/audio/output/
 !/tmp/.keep
 !/tmp/storage
 !/tmp/storage/.keep
+/storage/
