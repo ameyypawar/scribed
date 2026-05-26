@@ -36,7 +36,7 @@ gem "image_processing", "~> 1.2"
 # --- scribed additions ---
 gem "sidekiq", "~> 7.3"
 gem "redis", "~> 5.3"
-gem "ruby-openai", "~> 7.3"
+gem "ruby-openai", "~> 8.3"
 gem "whispercpp", "~> 1.3"
 gem "faraday", "~> 2.10"
 gem "faraday-multipart", "~> 1.0"
