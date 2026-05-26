@@ -1,0 +1,18 @@
+default: openai_compatible
+providers:
+  openai:
+    class: Providers::Openai
+    api_key_env: OPENAI_API_KEY
+    model: whisper-1
+  openai_compatible:
+    class: Providers::OpenaiCompatible
+    base_url: http://whisper:8000/v1
+    api_key_env: WHISPER_API_KEY
+    model: Systran/faster-whisper-small
+  whisper_cpp:
+    class: Providers::WhisperCpp
+    model: base.en
+  deepgram:
+    class: Providers::Deepgram
+    api_key_env: DEEPGRAM_API_KEY
+    model: nova-3

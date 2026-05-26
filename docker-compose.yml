@@ -51,9 +51,15 @@ services:
       timeout: 3s
       retries: 10
 
-  # CPU build. For GPU swap to ghcr.io/hwdsl2/docker-whisper:gpu and add deploy.resources.reservations.devices.
+  # OpenAI-compatible Whisper server. CPU build; runs anywhere with no GPU.
+  # GPU users: swap image to `fedirz/faster-whisper-server:latest-cuda` and add
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - capabilities: ["gpu"]
   whisper:
-    image: ghcr.io/hwdsl2/docker-whisper:latest
+    image: fedirz/faster-whisper-server:latest-cpu
     # ports: ["8000:8000"]   # uncomment to expose for debugging
     restart: unless-stopped
 

@@ -32,6 +32,19 @@ client → Rails API → Postgres
                      → Webhook
 ```
 
+## Providers
+
+scribed ships with four providers out of the box. Configure the default in `config/transcription.yml` or via the `DEFAULT_PROVIDER` env var.
+
+| Provider | Backend | Diarization | Streaming | Notes |
+|---|---|---|---|---|
+| `openai_compatible` | Any OpenAI-API-shaped endpoint (faster-whisper-server, hwdsl2/docker-whisper, Groq, Together, …) | No | No | **Default.** Bundled `whisper` service runs `faster-whisper-server` on CPU. |
+| `openai` | api.openai.com | No | No | Set `OPENAI_API_KEY`. 25 MB file limit. |
+| `whisper_cpp` | In-process via `whispercpp` gem | No | No | Slowest. No external deps once model is downloaded. Good fallback. |
+| `deepgram` | api.deepgram.com | Yes (native) | Yes (Phase 6) | Set `DEEPGRAM_API_KEY`. |
+
+Adding a provider: subclass `Providers::Base`, implement `#transcribe(audio_path, **opts)` returning a `Providers::Result`, register it in `config/transcription.yml`.
+
 ## Roadmap
 
 - **v0.1** — synchronous + async transcription, OpenAI-compatible provider, API-key auth, webhooks.
