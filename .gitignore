@@ -1,0 +1,8 @@
+
+# scribed
+.env
+.env.*.local
+tmp/storage/*
+!tmp/storage/.keep
+spec/fixtures/audio/output/
+*.wav.tmp

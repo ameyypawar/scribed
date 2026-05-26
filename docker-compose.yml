@@ -1,0 +1,62 @@
+services:
+  web:
+    build: .
+    command: bin/rails server -b 0.0.0.0 -p 3000
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    ports:
+      - "3000:3000"
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      whisper:
+        condition: service_started
+
+  worker:
+    build: .
+    command: bundle exec sidekiq
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: scribed
+      POSTGRES_PASSWORD: scribed
+      POSTGRES_DB: scribed_development
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U scribed"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # CPU build. For GPU swap to ghcr.io/hwdsl2/docker-whisper:gpu and add deploy.resources.reservations.devices.
+  whisper:
+    image: ghcr.io/hwdsl2/docker-whisper:latest
+    # ports: ["8000:8000"]   # uncomment to expose for debugging
+    restart: unless-stopped
+
+volumes:
+  pg_data:
+  bundle_cache:
