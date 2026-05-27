@@ -42,7 +42,11 @@ class TranscribeJob < ApplicationJob
       )
     end
 
-    WebhookJob.perform_later(record.id) if record.webhook_url.present?
+    if needs_sidecar_diarization?(record, provider)
+      submit_sidecar_diarization!(record)
+    elsif record.webhook_url.present?
+      WebhookJob.perform_later(record.id)
+    end
   rescue Providers::ProviderError
     raise
   rescue AudioFetcher::FetchError => e
@@ -65,5 +69,18 @@ class TranscribeJob < ApplicationJob
       temperature: record.temperature,
       diarize: record.diarize
     }.compact
+  end
+
+  def needs_sidecar_diarization?(record, provider)
+    record.diarize && !provider.supports_diarization?
+  end
+
+  def submit_sidecar_diarization!(record)
+    diarizer = Diarization.default
+    external_job_id = diarizer.submit(record)
+    record.update!(external_job_id: external_job_id, status: "processing")
+  rescue Diarization::DiarizerError => e
+    record.mark_failed!(e.message)
+    WebhookJob.perform_later(record.id) if record.webhook_url.present?
   end
 end

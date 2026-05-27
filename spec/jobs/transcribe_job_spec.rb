@@ -93,4 +93,44 @@ RSpec.describe TranscribeJob do
       expect(ActiveJob::Base.queue_adapter.enqueued_jobs.map { |j| j[:job] }).to include(WebhookJob)
     end
   end
+
+  context "with sidecar diarization (non-diarizing provider, diarize: true)" do
+    let(:diarizer) { instance_double(Diarization::Pyannote, submit: "pyannote-job-xyz") }
+
+    before do
+      allow(Diarization).to receive(:default).and_return(diarizer)
+    end
+
+    it "submits to diarizer, stores external_job_id, parks in processing, does not enqueue WebhookJob" do
+      record = create(:transcription,
+                      diarize: true,
+                      audio_url: "https://example.com/a.mp3",
+                      webhook_url: "https://hook.example/x",
+                      callback_secret: "s")
+      expect {
+        described_class.perform_now(record.id)
+      }.not_to have_enqueued_job(WebhookJob)
+      record.reload
+      expect(record.external_job_id).to eq("pyannote-job-xyz")
+      expect(record.status).to eq("processing")
+      expect(diarizer).to have_received(:submit).with(record)
+    end
+
+    it "marks failed and enqueues WebhookJob when diarizer raises" do
+      allow(diarizer).to receive(:submit).and_raise(
+        Diarization::DiarizerError.new("pyannote: requires audio_url")
+      )
+      record = create(:transcription,
+                      :with_attached_audio,
+                      diarize: true,
+                      webhook_url: "https://hook.example/x",
+                      callback_secret: "s")
+      expect {
+        described_class.perform_now(record.id)
+      }.to have_enqueued_job(WebhookJob).with(record.id)
+      record.reload
+      expect(record.status).to eq("failed")
+      expect(record.error_message).to match(/audio_url/)
+    end
+  end
 end

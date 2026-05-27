@@ -16,3 +16,12 @@ providers:
     class: Providers::Deepgram
     api_key_env: DEEPGRAM_API_KEY
     model: nova-3
+diarizers:
+  pyannote:
+    class: Diarization::Pyannote
+    api_key_env: PYANNOTE_API_KEY
+    endpoint: https://api.pyannote.ai/v1/diarize
+  whisperx:
+    class: Diarization::WhisperX
+    base_url: http://whisperx:8001
+default_diarizer: pyannote

@@ -106,6 +106,29 @@ ActiveSupport::SecurityUtils.secure_compare(expected, request.headers["X-Scribed
 
 Delivery uses Sidekiq with exponential backoff retries (up to ~5 attempts in v0.1, ~25 in production tuning).
 
+## Diarization
+
+For providers that don't support speaker labels natively (everything except Deepgram), pass `diarize: true` and provide an `audio_url`. scribed submits the audio to [pyannote.ai](https://pyannote.ai) asynchronously and waits for a callback. When the callback lands, scribed merges speaker labels into the existing transcription segments and fires the user webhook.
+
+```bash
+curl -X POST http://localhost:3000/v1/transcriptions \
+  -H "Authorization: Bearer change-me-dev-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "audio_url": "https://example.com/call.mp3",
+    "provider": "openai_compatible",
+    "diarize": true,
+    "callback_url": "https://you/hook"
+  }'
+```
+
+Requirements:
+- `PYANNOTE_API_KEY` set
+- `PYANNOTE_WEBHOOK_BASE_URL` set to the public URL of your scribed deployment (so pyannote can call back). Use ngrok for local testing.
+- `audio_url` is required (pyannote can't fetch ActiveStorage blobs without exposing signed URLs — coming in a future phase).
+
+Native Deepgram diarization (no pyannote round-trip) works synchronously: just pass `provider: "deepgram"` and `diarize: true`.
+
 ## Roadmap
 
 - **v0.1** — synchronous + async transcription, OpenAI-compatible provider, API-key auth, webhooks.
