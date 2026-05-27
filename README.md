@@ -43,7 +43,7 @@ scribed ships with four providers out of the box. Configure the default in `conf
 | `openai_compatible` | Any OpenAI-API-shaped endpoint (faster-whisper-server, hwdsl2/docker-whisper, Groq, Together, …) | No | No | **Default.** Bundled `whisper` service runs `faster-whisper-server` on CPU. |
 | `openai` | api.openai.com | No | No | Set `OPENAI_API_KEY`. 25 MB file limit. |
 | `whisper_cpp` | In-process via `whispercpp` gem | No | No | Slowest. No external deps once model is downloaded. Good fallback. |
-| `deepgram` | api.deepgram.com | Yes (native) | Yes (Phase 6) | Set `DEEPGRAM_API_KEY`. |
+| `deepgram` | api.deepgram.com | Yes (native) | Planned (v0.3) | Set `DEEPGRAM_API_KEY`. |
 
 Adding a provider: subclass `Providers::Base`, implement `#transcribe(audio_path, **opts)` returning a `Providers::Result`, register it in `config/transcription.yml`.
 
@@ -129,11 +129,17 @@ Requirements:
 
 Native Deepgram diarization (no pyannote round-trip) works synchronously: just pass `provider: "deepgram"` and `diarize: true`.
 
+## Live streaming
+
+Real-time streaming transcription via ActionCable is **planned for v0.3** but not yet implemented. The transport, message protocol, provider mapping, and state model are designed in [docs/streaming.md](docs/streaming.md).
+
+Today, subscribing to the `TranscriptionChannel` returns a `not_implemented` error event. The stub exists to reserve the route + protocol shape; future v0.3 work fills in the body.
+
 ## Roadmap
 
 - **v0.1** — synchronous + async transcription, OpenAI-compatible provider, API-key auth, webhooks.
-- **v0.2** — diarization (pyannote), word-level timestamps, multiple language hints, retries with backoff.
-- **v0.3** — multi-tenant projects, per-project provider routing, usage metering, admin UI.
+- **v0.2** — diarization (pyannote, native Deepgram), word-level timestamps, multiple language hints, retries with backoff. ✅ delivered
+- **v0.3** — live streaming via ActionCable + Deepgram WebSocket, multi-tenant projects, per-project provider routing, usage metering, admin UI.
 
 ## License
 

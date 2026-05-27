@@ -1,7 +1,7 @@
 class Transcription < ApplicationRecord
   has_one_attached :audio
 
-  STATUSES  = %w[pending processing completed failed cancelled].freeze
+  STATUSES  = %w[pending processing streaming completed failed cancelled].freeze
   PROVIDERS = %w[openai openai_compatible whisper_cpp deepgram].freeze
 
   validates :status,   inclusion: { in: STATUSES }
