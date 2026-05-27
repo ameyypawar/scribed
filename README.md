@@ -135,6 +135,16 @@ Real-time streaming transcription via ActionCable is **planned for v0.3** but no
 
 Today, subscribing to the `TranscriptionChannel` returns a `not_implemented` error event. The stub exists to reserve the route + protocol shape; future v0.3 work fills in the body.
 
+## Examples
+
+Runnable demos live in [`examples/`](examples/):
+
+- [`curl_voice_note.sh`](examples/curl_voice_note.sh) — submit a short voice note, poll, print transcript
+- [`curl_call_recording.sh`](examples/curl_call_recording.sh) — Deepgram + native diarization
+- [`chatwoot_webhook_bridge/`](examples/chatwoot_webhook_bridge/) — Sinatra app that wires scribed into Chatwoot's webhook + REST API. Lets a Chatwoot deployment use scribed instead of its built-in OpenAI transcription.
+
+See [`examples/README.md`](examples/README.md) for the full walkthrough.
+
 ## Roadmap
 
 - **v0.1** — synchronous + async transcription, OpenAI-compatible provider, API-key auth, webhooks.
