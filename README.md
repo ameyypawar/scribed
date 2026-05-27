@@ -32,6 +32,8 @@ client → Rails API → Postgres
                      → Webhook
 ```
 
+Workers process two queues: `transcriptions` (compute-bound, concurrency 2) and `webhooks` (network-bound, concurrency 1). The default queue handles ad-hoc jobs.
+
 ## Providers
 
 scribed ships with four providers out of the box. Configure the default in `config/transcription.yml` or via the `DEFAULT_PROVIDER` env var.
@@ -85,6 +87,24 @@ curl -X DELETE -H "Authorization: Bearer change-me-dev-key" \
   http://localhost:3000/v1/transcriptions/<uuid>
 # 204 No Content
 ```
+
+## Webhooks
+
+When you POST a transcription with `callback_url`, scribed will POST the full serialized transcription to that URL when it reaches a terminal state (`completed`, `failed`, or `cancelled`).
+
+Each request includes:
+- `X-Scribed-Event` — `transcription.completed` | `transcription.failed` | `transcription.cancelled`
+- `X-Scribed-Signature` — `sha256=<hex>` HMAC of the body, computed with the per-record secret (or `SCRIBED_WEBHOOK_SECRET` fallback)
+- `User-Agent: scribed/0.1`
+
+Verify the signature server-side before trusting the payload:
+
+```ruby
+expected = "sha256=" + OpenSSL::HMAC.hexdigest("SHA256", secret, request.body.read)
+ActiveSupport::SecurityUtils.secure_compare(expected, request.headers["X-Scribed-Signature"])
+```
+
+Delivery uses Sidekiq with exponential backoff retries (up to ~5 attempts in v0.1, ~25 in production tuning).
 
 ## Roadmap
 

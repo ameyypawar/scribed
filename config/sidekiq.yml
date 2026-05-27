@@ -1,0 +1,5 @@
+:concurrency: 5
+:queues:
+  - [transcriptions, 2]
+  - [webhooks, 1]
+  - default
